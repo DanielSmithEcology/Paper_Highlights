@@ -1,26 +1,26 @@
 using Random, Distributions, DataFrames, Plots
 
 # Parameters
-M = 100  # Size of the torus (meters)
-S = 10    # Number of species
-N0 = 15  # Initial number of individuals per species
-r = 10  # Radius for mortality calculation
-C_effect = 0.05
-H_effect = 0.05
-P_L =1
+M = 50  # Size of the torus (meters)
+S = 5    # Number of species
+N0 = 200  # Initial number of individuals per species
+r = 5  # Radius for mortality calculation
+C_effect = 0.0075
+H_effect = 0.0075
+P_L = .05
 I = 0.01  # Immigration rate
 tau = 100  # Save data every tau events
 Disp_k = 5
+D_Change = 0.01  # Rate at which a dispersal center changes location
 
 # Species-specific parameters
-birth_rates = fill(.3,S)  #rand(S)  # Random birth rates for each species
+birth_rates = fill(0.2, S)  # Random birth rates for each species
 CON = rand(S)  # Random CON values for each species
 HET = rand(S)  # Random HET values for each species
-K = 5  # Number of dispersal centers per species
+K = 10  # Number of dispersal centers per species
 
 # Initialize dispersal centers
 dispersal_centers = [rand(2) * M for _ in 1:S, _ in 1:K]
-
 
 # Plot the time series
 function plot_time_series(time_series)
@@ -33,9 +33,7 @@ function plot_time_series(time_series)
     xlabel!("Event Count")
     ylabel!("Abundance")
     title!("Abundance of Each Species Through Time")
-    #legend(:topright)
 end
-
 
 # Plot spatial locations
 function plot_spatial_locations(spatial_locations, event_count)
@@ -49,10 +47,7 @@ function plot_spatial_locations(spatial_locations, event_count)
     xlabel!("X Coordinate")
     ylabel!("Y Coordinate")
     title!("Spatial Locations of Individuals at Event $event_count")
-   # legend(:topright)
 end
-
-
 
 # Initialize population
 population = DataFrame(species=Int[], x=Float64[], y=Float64[], event=Int[], time=Float64[])
@@ -61,16 +56,6 @@ for species in 1:S
         push!(population, (species, rand() * M, rand() * M, 0, 0.0))
     end
 end
-
-# Function to calculate mortality rate
-function mortality_rate(population, i, r, C_effect, H_effect, CON, HET)
-    focal = population[i, :]
-    neighbors = population[[(x - focal.x)^2 + (y - focal.y)^2 <= r^2 for (x, y) in zip(population.x, population.y)], :]
-    CON_count = sum(neighbors.species .== focal.species)
-    HET_count = size(neighbors, 1) - CON_count
-    return CON_count * C_effect + HET_count* H_effect
-end
-
 
 # Function to calculate toroidal distance
 function toroidal_distance(x1, y1, x2, y2, M)
@@ -81,18 +66,20 @@ function toroidal_distance(x1, y1, x2, y2, M)
     return sqrt(dx^2 + dy^2)
 end
 
+
 # Function to calculate mortality rate
 function mortality_rate(population, i, r, C_effect, H_effect, CON, HET, M)
     focal = population[i, :]
-    neighbors = population[[toroidal_distance(focal.x, focal.y, x, y, M) <= r for (x, y) in zip(population.x, population.y)], :]
-    CON_count = sum(neighbors.species .== focal.species)
-    HET_count = size(neighbors, 1) - CON_count
+    neighbors = population[[toroidal_distance(focal.x, focal.y, x, y, M) <= r for (x, y) in zip(population.x, population.y)] .& (1:size(population, 1) .!= i), :]
+    distances = [toroidal_distance(focal.x, focal.y, x, y, M) for (x, y) in zip(neighbors.x, neighbors.y)]
+    distance_CON = distances[neighbors.species .== focal.species]
+    distance_HET = distances[neighbors.species .!= focal.species]
+    CON_count = isempty(distance_CON) ? 0.0 : sum(1 ./ distance_CON)
+    HET_count = isempty(distance_HET) ? 0.0 : sum(1 ./ distance_HET)
     return CON_count * C_effect + HET_count * H_effect
 end
-
-
 # Function to place a new tree
-function place_new_tree(parent, dispersal_centers, P_L, M,Disp_k)
+function place_new_tree(parent, dispersal_centers, P_L, M, Disp_k)
     if rand() < P_L
         # Place near parent
         x = mod(parent.x + rand(Exponential(Disp_k)), M)
@@ -106,10 +93,8 @@ function place_new_tree(parent, dispersal_centers, P_L, M,Disp_k)
     return (x, y)
 end
 
-
-
 # Gillespie algorithm function
-function run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r,Disp_k, M, tau, num_events)
+function run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, M, tau, num_events)
     event_count = 0
     absolute_time = 0.0
     time_series = DataFrame(event=Int[], time=Float64[], species=Int[], abundance=Int[])
@@ -119,7 +104,7 @@ function run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_
         # Calculate rates
         death_rates = [mortality_rate(population, i, r, C_effect, H_effect, CON, HET, M) for i in 1:size(population, 1)]
         birth_rates_individual = [birth_rates[population[i, :].species] for i in 1:size(population, 1)]
-        total_rate = sum(death_rates) + sum(birth_rates_individual) + I
+        total_rate = sum(death_rates) + sum(birth_rates_individual) + I + D_Change
 
         # Determine time to next event
         dt = rand(Exponential(1 / total_rate))
@@ -138,17 +123,22 @@ function run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_
             parent = population[i, :]
             (x, y) = place_new_tree(parent, dispersal_centers, P_L, M, Disp_k)
             push!(population, (parent.species, x, y, event_count, absolute_time))
-        else
+        elseif event_prob < sum(death_rates) + sum(birth_rates_individual) + I
             # Immigration event
             species = rand(1:S)
             x = rand() * M
             y = rand() * M
             push!(population, (species, x, y, event_count, absolute_time))
+        else
+            # Dispersal center change event
+            species = rand(1:S)
+            center_index = rand(1:K)
+            dispersal_centers[species, center_index] = rand(2) * M
         end
 
         # Save data every tau events
         if event_count % tau == 0
-            println("Event $event_count: Saving data...")
+            #println("Event $event_count: Saving data...")
             # Save abundance data
             abundance = combine(groupby(population, :species), nrow => :count)
             for row in eachrow(abundance)
@@ -165,10 +155,11 @@ function run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_
     return time_series, spatial_locations
 end
 
+
 # Run the simulation
-num_events = 500  # Number of events to simulate
-tau = 100
-Time_Series, Spatial_Locations = run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r,Disp_k, M, tau, num_events)
+num_events = 2500  # Number of events to simulate
+tau = 25
+Time_Series, Spatial_Locations = run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, M, tau, num_events)
 
 # Display results
 println("Time Series Data:")
@@ -183,6 +174,6 @@ println(first(Spatial_Locations, 20))
 plot_time_series(Time_Series)
 
 # Specify the event count you want to plot
-specified_event_count = 300
+specified_event_count = 2500
 # Call the function to plot the spatial locations
 plot_spatial_locations(Spatial_Locations, specified_event_count)
