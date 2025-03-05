@@ -4,7 +4,7 @@ using Random, Distributions, DataFrames, Plots
 M = 100  # Size of the torus (meters)
 S = 10   # Number of species
 N0 = 15  # Initial number of individuals per species
-r = 0.1  # Average reproduction rate per individual per timestep
+r = 5  # Average reproduction rate per individual per timestep
 death_rate_constant = 0.05  # Constant for death rate calculation
 C_effect = 0.05
 H_effect = 0.05
@@ -15,7 +15,7 @@ Disp_k = 5
 D_Change = 0.01  # Probability of dispersal center change per timestep
 
 # Species-specific parameters
-birth_rates = fill(0.3, S)  # Random birth rates for each species
+birth_rates = fill(0.05, S)  # Random birth rates for each species
 CON = rand(S)  # Random CON values for each species
 HET = rand(S)  # Random HET values for each species
 K = 5  # Number of dispersal centers per species
@@ -154,8 +154,8 @@ function run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_
 end
 
 # Run the simulation
-num_timesteps = 1000  # Number of timesteps to simulate
-tau = 10
+num_timesteps = 50  # Number of timesteps to simulate
+tau = 1
 Time_Series, Spatial_Locations = run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, M, tau, num_timesteps)
 
 # Display results
@@ -171,6 +171,6 @@ println(first(Spatial_Locations, 20))
 plot_time_series(Time_Series)
 
 # Specify the timestep you want to plot
-specified_timestep = 50
+specified_timestep = 25
 # Call the function to plot the spatial locations
 plot_spatial_locations(Spatial_Locations, specified_timestep)
