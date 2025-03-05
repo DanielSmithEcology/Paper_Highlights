@@ -4,7 +4,7 @@ using Random, Distributions, DataFrames, Plots
 M = 100  # Size of the torus (meters)
 S = 10   # Number of species
 N0 = 15  # Initial number of individuals per species
-r = 5  # Average reproduction rate per individual per timestep
+r = 10  # Average reproduction rate per individual per timestep
 death_rate_constant = 0.05  # Constant for death rate calculation
 C_effect = 0.05
 H_effect = 0.05
@@ -101,17 +101,16 @@ function run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_
 
     for timestep in 1:num_timesteps
         new_population = DataFrame(species=Int[], x=Float64[], y=Float64[], timestep=Int[])
-
+        
         # Reproduction
         for i in 1:size(population, 1)
             parent = population[i, :]
-            num_offspring = rand(Poisson(r))
+            num_offspring = rand(Poisson(birth_rates[parent.species]))
             for _ in 1:num_offspring
                 (x, y) = place_new_tree(parent, dispersal_centers, P_L, M, Disp_k)
                 push!(new_population, (parent.species, x, y, timestep))
             end
         end
-
         # Death
         death_rates = [mortality_rate(population, i, r, C_effect, H_effect, CON, HET, M) for i in 1:size(population, 1)]
         survivors = population[[rand() < exp(-death_rate) for death_rate in death_rates], :]
