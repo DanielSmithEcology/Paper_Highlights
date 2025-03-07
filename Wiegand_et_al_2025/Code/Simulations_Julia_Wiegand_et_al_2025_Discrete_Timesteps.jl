@@ -3,12 +3,12 @@ using Random, Distributions, DataFrames, Plots
 # Parameters
 M = 200  # Size of the torus (meters)
 S = 15   # Number of species
-N0 = 60  # Initial number of individuals per species
+N0 = 70  # Initial number of individuals per species
 r = 8  # radius for mortality calculation
 death_rate_constant = 0.05  # Constant for death rate calculation
-C_effect = 0.025
-H_effect = 0.025
-P_L = 1
+C_effect = 0.04
+H_effect = 0.04
+P_L = .05
 I = 0.01  # Probability of immigration event per timestep
 tau = 10  # Number of timesteps to save data
 Disp_k = 1.5
@@ -244,11 +244,11 @@ function run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_
         end
     end
 
-    return time_series, spatial_locations
+    return time_series, spatial_locations, population
 end
 
 # Run the simulation
-num_timesteps = 5000  # Number of timesteps to simulate
+num_timesteps = 1000  # Number of timesteps to simulate
 tau = 5
 Time_Series, Spatial_Locations = run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, M, tau, num_timesteps)
 
@@ -256,7 +256,7 @@ Time_Series, Spatial_Locations = run_simulation(population, dispersal_centers, b
 plot_time_series(Time_Series)
 
 # Specify the timestep you want to plot
-specified_timestep = 5000
+specified_timestep = num_timesteps
 # Call the function to plot the spatial locations
 plot_spatial_locations(Spatial_Locations, specified_timestep)
 
@@ -264,8 +264,8 @@ plot_mean_counts(Spatial_Locations, 1)
 
 
 
-# Call the updated function to plot the scaled counts
-focal_species = 9
+# Call the updated function to plot the scaled count
+focal_species = 15
 plot_crowding_index_vs_abundance(Spatial_Locations, Time_Series, focal_species)
 
 plot_aggregation_metric_vs_abundance(Spatial_Locations, Time_Series, focal_species, r, M)
@@ -283,3 +283,53 @@ println(first(Time_Series, 20))
 println("Spatial Locations Data:")
 println(Spatial_Locations)
 println(first(Spatial_Locations, 20))
+
+
+
+num_timesteps = 2500  # Number of timesteps to simulate
+tau = 5
+
+Random.seed!(4394)
+
+P_L = .95
+Time_Series_95, Spatial_Locations_95, Population_95 = run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, M, tau, num_timesteps)
+
+P_L = .8
+Time_Series_8, Spatial_Locations_8, Population_8 = run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, M, tau, num_timesteps)
+
+P_L = .65
+Time_Series_65, Spatial_Locations_65, Population_65 = run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, M, tau, num_timesteps)
+
+P_L = .5
+Time_Series_5, Spatial_Locations_5, Population_5 = run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, M, tau, num_timesteps)
+
+P_L = .35
+Time_Series_35, Spatial_Locations_35, Population_35 = run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, M, tau, num_timesteps)
+
+P_L = .2
+Time_Series_2, Spatial_Locations_2, Population_2 = run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, M, tau, num_timesteps)
+
+P_L = .05
+Time_Series_05, Spatial_Locations_05, Population_05 = run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, M, tau, num_timesteps)
+
+
+
+plot_time_series(Time_Series_95)
+plot_time_series(Time_Series_8)
+plot_time_series(Time_Series_65)
+plot_time_series(Time_Series_5)
+plot_time_series(Time_Series_35)
+plot_time_series(Time_Series_2)
+plot_time_series(Time_Series_05)
+
+
+# Call the updated function to plot the scaled count
+focal_species = 2
+plot_crowding_index_vs_abundance(Spatial_Locations_95, Time_Series_95, focal_species)
+plot_aggregation_metric_vs_abundance(Spatial_Locations_95, Time_Series_95, focal_species, r, M)
+
+plot_crowding_index_vs_abundance(Spatial_Locations_05, Time_Series_05, focal_species)
+plot_aggregation_metric_vs_abundance(Spatial_Locations_05, Time_Series_05, focal_species, r, M)
+
+
+
