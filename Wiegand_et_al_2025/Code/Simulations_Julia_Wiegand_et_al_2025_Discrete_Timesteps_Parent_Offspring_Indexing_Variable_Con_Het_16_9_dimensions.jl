@@ -279,8 +279,8 @@ function run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_
         # Immigration
         if rand() < I
             species = rand(1:S)
-            x = rand() * M
-            y = rand() * M
+            x = rand() * Mx
+            y = rand() * My
             INDEX_COUNT += 1
             push!(new_population, (species, x, y, timestep, Mx/2, My, timestep,INDEX_COUNT))
         end
@@ -366,7 +366,8 @@ num_timesteps = 5000  # Number of timesteps to simulate
 tau = 1
 
 Random.seed!(4394)
-dispersal_centers = [rand(2) * M for _ in 1:S, _ in 1:K]
+#dispersal_centers = [rand(2) * M for _ in 1:S, _ in 1:K]
+dispersal_centers = [ vec(hcat(rand(1) * Mx, rand(1) * My)) for _ in 1:S, _ in 1:K]
 
 P_L = .95
 Time_Series_95b, Spatial_Locations_95b, Population_95b, Centers_95b = run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, Mx, My, tau, num_timesteps)
@@ -407,7 +408,6 @@ plot_spatial_locations(Spatial_Locations_95b, num_timesteps)
 plot_spatial_locations(Spatial_Locations_5b, num_timesteps)
 plot_spatial_locations(Spatial_Locations_05b, num_timesteps)
 
-Centers_05b
 
 
 working_directory = joinpath(dirname(dirname(@__FILE__)), "Data")
