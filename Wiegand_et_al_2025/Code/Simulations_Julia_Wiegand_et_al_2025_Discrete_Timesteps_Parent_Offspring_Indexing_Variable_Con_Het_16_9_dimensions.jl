@@ -387,20 +387,20 @@ plot_time_series(Time_Series_05b)
 
 
 # Call the updated function to plot the scaled count
-focal_species = 4
+focal_species = 6
 plot_crowding_index_vs_abundance(Spatial_Locations_95b, Time_Series_95b, focal_species)
 
 
 dispersal_centers
 
 
-focal_species = 12
+focal_species = 6
 plot_crowding_index_vs_abundance(Spatial_Locations_05b, Time_Series_05b, focal_species)
 
 
 focal_species = 2
 plot_aggregation_metric_vs_abundance(Spatial_Locations_95b, Time_Series_95b, focal_species, r, Mx, My)
-plot_aggregation_metric_vs_abundance(Spatial_Locations_05, Time_Series_05, focal_species, r,Mx, My)
+plot_aggregation_metric_vs_abundance(Spatial_Locations_05b, Time_Series_05b, focal_species, r,Mx, My)
 
 
 
