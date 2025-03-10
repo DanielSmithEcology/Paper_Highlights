@@ -413,6 +413,10 @@ plot_spatial_locations(Spatial_Locations_05b, num_timesteps)
 working_directory = joinpath(dirname(dirname(@__FILE__)), "Data")
 cd(working_directory)
 
+
+# Set the working directory
+cd("C:\\Users\\smith\\OneDrive\\Desktop\\Videos and More\\Paper_Highlights\\Local_Files\\Wiegand_et_al_2025_Local")
+
 # Extract the first and second elements of each vector
 first_elements = [v[1] for v in dispersal_centers]
 second_elements = [v[2] for v in dispersal_centers]
@@ -423,7 +427,7 @@ rename!(df_Disperal_Centers, :X1 => :x_coord, :X2 => :y_coord)
 
 
 Crowding_index_Num_Neighbors = plot_crowding_index_vs_abundance_DF(Spatial_Locations_05b, Time_Series_05b, focal_species)
-Aggregation_Metric_Exponent = plot_aggregation_metric_vs_abundance_DF(Spatial_Locations_05, Time_Series_05, focal_species, r,Mx, My)
+Aggregation_Metric_Exponent = plot_aggregation_metric_vs_abundance_DF(Spatial_Locations_05b, Time_Series_05b, focal_species, r,Mx, My)
 
 
 # Save the DataFrame as a CSV file
@@ -434,3 +438,5 @@ CSV.write("Crowding_index_Num_Neighbors_12.csv", Crowding_index_Num_Neighbors)
 CSV.write("Aggregation_Metric_Exponent_12.csv", Aggregation_Metric_Exponent)
 
 
+working_directory = joinpath(dirname(dirname(@__FILE__)), "Data")
+cd(working_directory)
