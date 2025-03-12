@@ -8,7 +8,7 @@ library(dplyr)
 
 
 
-setwd("C:/Users/smith/OneDrive/Desktop/Videos and More/Paper_Highlights/Paper_Highlights/Wiegand_et_al_2025/Data")
+setwd("C:/Users/smith/OneDrive/Desktop/Videos and More/Paper_Highlights/Local_Files/Wiegand_et_al_2025_Local/Data")
 
 Aggregation_Metric_Exponent_12 <- read.csv("Aggregation_Metric_Exponent_12.csv")
 Crowding_index_Num_Neighbors_12 <- read.csv("Crowding_index_Num_Neighbors_12.csv")
@@ -38,11 +38,23 @@ Spatial_Locations_05 <- Spatial_Locations_05 %>%
   select(-max_timestep)
 
 
+Spatial_Locations_05 <- subset(Spatial_Locations_05,timestep>1)
+
+
+
 # Example usage
-Tree_Sp_1 <- "C:/Users/smith/OneDrive/Desktop/Teaching_Related_Doucments/Course Doucments/Mathematical Biology Course/General_Animation_Code/Images/Tree_1.png"
+Tree_WD <- "C:/Users/smith/OneDrive/Desktop/Videos and More/Paper_Highlights/Paper_Highlights/Wiegand_et_al_2025/Images"
+setwd(Tree_WD)
+# Get a list of all files in the working directory
+a <- list.files()
+
+# Loop through each file and save it with the new name format
+for (i in seq_along(files)) {
+  file_name <- files[i]
+  new_name <- paste0("Tree_Sp_", i)
+  file.copy(file_name, new_name)
+}
+
+
 seed_img_path <- "C:/Users/smith/OneDrive/Desktop/Teaching_Related_Doucments/Course Doucments/Mathematical Biology Course/General_Animation_Code/Images/Seed_1.png"
-
-
-
-
 

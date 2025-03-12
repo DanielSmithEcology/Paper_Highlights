@@ -1,10 +1,10 @@
 using Random, Distributions, DataFrames, Plots, CSV
 
 # Parameters
-Mx = 192  # Size of the torus (meters)
-My = 108
-S = 15   # Number of species
-N0 = 35  # Initial number of individuals per species
+Mx = 96/1.2  # Size of the torus (meters)
+My = 108/1.2
+S = 10   # Number of species
+N0 = 20  # Initial number of individuals per species
 r = 8  # radius for mortality calculation
 death_rate_constant = 0.05  # Constant for death rate calculation
 C_effect = 0.04
@@ -184,9 +184,9 @@ function plot_aggregation_metric_vs_abundance_DF(spatial_locations, time_series,
 
 end
 
-focal_species = 6
-focal_species =1
-Aggregation_Metric_Exponent = plot_aggregation_metric_vs_abundance_DF(Spatial_Locations_05b, Time_Series_05b, focal_species, r,Mx, My)
+#focal_species = 6
+#focal_species =1
+#Aggregation_Metric_Exponent = plot_aggregation_metric_vs_abundance_DF(Spatial_Locations_05b, Time_Series_05b, focal_species, r,Mx, My)
 
 # Initialize population
 population = DataFrame(species=Int[], x=Float64[], y=Float64[], timestep=Int[], x_parent=Float64[],y_parent=Float64[],Birth=Int[],Index=Int[])
@@ -249,7 +249,33 @@ function place_new_tree(parent, dispersal_centers, P_L, Mx,My, Disp_k)
     return (x, y)
 end
 
-# Simulation function
+
+# Function to place a new tree
+function place_new_tree(parent, dispersal_centers, P_L, Mx, My, Disp_k)
+    if rand() < P_L
+        # Place near parent
+        x, y = parent.x, parent.y
+    else
+        # Place near dispersal center
+        center = dispersal_centers[parent.species, rand(1:K)]
+        x, y = center[1], center[2]
+    end
+
+    new_x = x + rand(Exponential(Disp_k))
+    new_y = y + rand(Exponential(Disp_k))
+
+    # Ensure new coordinates are within bounds
+    while new_x >= Mx || new_x < 0
+        new_x = x + rand(Exponential(Disp_k))
+    end
+    while new_y >= My || new_y < 0
+        new_y = y + rand(Exponential(Disp_k))
+    end
+
+    return (new_x, new_y)
+end
+
+# Simulation function   
 function run_simulation(S,population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, Mx,My, tau, num_timesteps)
     time_series = DataFrame(timestep=Int[], species=Int[], abundance=Int[])
     spatial_locations = DataFrame(species=Int[], x=Float64[], y=Float64[], x_parent=Float64[],y_parent=Float64[], Birth=Int[],Index = Int[],timestep=Int[],CON_count=Float64[], HET_count=Float64[])
@@ -373,24 +399,27 @@ println(first(Spatial_Locations, 20))
 
 
 
-num_timesteps = 2500  # Number of timesteps to simulate
+num_timesteps = 1500  # Number of timesteps to simulate
 tau = 1
 
 Random.seed!(4394)
 
 Random.seed!(5953)
 
+Random.seed!(1383)
+
 #dispersal_centers = [rand(2) * M for _ in 1:S, _ in 1:K]
 dispersal_centers = [ vec(hcat(rand(1) * Mx, rand(1) * My)) for _ in 1:S, _ in 1:K]
 
-P_L = .95
-Time_Series_95b, Spatial_Locations_95b, Population_95b, Centers_95b = run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, Mx, My, tau, num_timesteps)
+P_L = .05
+Time_Series_05b, Spatial_Locations_05b, Population_05b, Centers_05b = run_simulation(S,population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, Mx, My, tau, num_timesteps)
 
 P_L = .5
-Time_Series_5b, Spatial_Locations_5b, Population_5b = run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, Mx, My, tau, num_timesteps)
+Time_Series_5b, Spatial_Locations_5b, Population_5b = run_simulation(S,population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, Mx, My, tau, num_timesteps)
 
-P_L = .05
-Time_Series_05b, Spatial_Locations_05b, Population_05b, Centers_05b = run_simulation(population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, Mx, My, tau, num_timesteps)
+Random.seed!(4394)
+P_L = .95
+Time_Series_95b, Spatial_Locations_95b, Population_95b, Centers_95b = run_simulation(S,population, dispersal_centers, birth_rates, CON, HET, C_effect, H_effect, P_L, I, r, Disp_k, D_Change, Mx, My, tau, num_timesteps)
 
 
 plot_time_series(Time_Series_95b)
