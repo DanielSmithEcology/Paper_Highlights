@@ -149,7 +149,7 @@ create_animation <- function(Adult_Positions, animation_data, Tree_Images,Tree_W
   
   # Make Animation 
   #Animation <- animate(anim_plot, nframes = n_frames + pause_frames+15, fps = 10,height = 900, width =1600,end_pause = 15,renderer = gifski_renderer())
-  anim_plot_New <- animate(anim_plot, nframes = Frames_Seeds + 15, res = 150,fps = 10, height = 900*3, width = 1600*3, end_pause = 15, renderer = gifski_renderer())
+  anim_plot_New <- animate(anim_plot, nframes = Frames_Seeds + 15, res = 150,fps = 10, height = 900*3, width = 1600*3/2, end_pause = 15, renderer = gifski_renderer())
   return(anim_plot_New)
 }
 

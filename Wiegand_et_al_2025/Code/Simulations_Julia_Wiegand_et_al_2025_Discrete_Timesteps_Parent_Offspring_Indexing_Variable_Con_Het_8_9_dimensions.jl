@@ -140,8 +140,8 @@ function plot_aggregation_metric_vs_abundance(spatial_locations, time_series, fo
     c = 2 * π * r / (Mx*My)
     merged_data.Scaled_mean_CON_count = merged_data.mean_CON_count./(c*merged_data.abundance)
 
-#    println(merged_data.mean_HET_count)
-#    println(abundance_vector_others)
+    println(merged_data.mean_HET_count)
+    println(abundance_vector_others)
     merged_data.Scaled_mean_HET_count = merged_data.mean_HET_count./(c*abundance_vector_others)
 
     
@@ -430,19 +430,20 @@ plot_time_series(Time_Series_05b)
 
 
 # Call the updated function to plot the scaled count
-focal_species = 1
 plot_crowding_index_vs_abundance(Spatial_Locations_95b, Time_Series_95b, focal_species)
 
 
 dispersal_centers
 
 
-focal_species = 6
+focal_species = 7
 plot_crowding_index_vs_abundance(Spatial_Locations_05b, Time_Series_05b, focal_species)
+plot_crowding_index_vs_abundance(Spatial_Locations_95b, Time_Series_05b, focal_species)
 
 
-focal_species = 1
+focal_species = 11
 plot_aggregation_metric_vs_abundance(Spatial_Locations_95b, Time_Series_95b, focal_species, r, Mx, My)
+focal_species = 9
 plot_aggregation_metric_vs_abundance(Spatial_Locations_05b, Time_Series_05b, focal_species, r,Mx, My)
 
 
@@ -458,7 +459,7 @@ cd(working_directory)
 
 
 # Set the working directory
-cd("C:\\Users\\smith\\OneDrive\\Desktop\\Videos and More\\Paper_Highlights\\Local_Files\\Wiegand_et_al_2025_Local")
+cd("C:\\Users\\smith\\OneDrive\\Desktop\\Videos and More\\Paper_Highlights\\Local_Files\\Wiegand_et_al_2025_Local\\Data")
 
 # Extract the first and second elements of each vector
 first_elements = [v[1] for v in dispersal_centers]
