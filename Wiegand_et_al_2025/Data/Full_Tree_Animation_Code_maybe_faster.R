@@ -12,9 +12,9 @@ add_image_BAD <- function(plot, img_path, x, y, width, height) {
   plot + annotation_custom(img, xmin = x , xmax = x , ymin = y , ymax = y )
 }
 
-add_image <- function(plot, img_path, x, y, width, height) {
-  img <- rasterGrob(png::readPNG(img_path), width = unit(width, "npc"), height = unit(height, "npc"))
-  plot + annotation_custom(img, xmin = x - 0.5, xmax = x + 0.5, ymin = y - 0.25, ymax = y + 0.75)
+add_image <- function(plot, img, x, y, width, height) {
+  img_grob <- rasterGrob(img, width = unit(width, "npc"), height = unit(height, "npc"))
+  plot + annotation_custom(img_grob, xmin = x - 0.5, xmax = x + 0.5, ymin = y - 0.25, ymax = y + 0.75)
 }
 
 add_image_b <- function(plot, img_path, x, y, width, height) {
@@ -46,7 +46,7 @@ create_gif_from_plots <- function(plot_list, gif_name = "combined_plots.gif", fp
   }
   
   gif <- image_animate(image_join(images), fps = fps)
-
+  
   # Save the GIF
   image_write(gif, gif_name)
   
@@ -90,7 +90,7 @@ create_gif_from_plots <- function(plot_list, gif_name = "combined_plots.gif", fp
 
 
 # Function will prompt creation of all animations / save them to specified working directory  
-Animate_All <- function(Spatial_Locations_Data,TimeSteps,Frames_Seeds,Tree_Images,Tree_WD,Seed_Image,X_Image_Path,alphabetical_vector,WD_Save,Scale_Factor,Mx,My,DELTA){
+Animate_All <- function(Spatial_Locations_Data,TimeSteps,Frames_Seeds,Tree_Images,Tree_Images_list,Seed_Image,X_Image_Path,alphabetical_vector,WD_Save,Scale_Factor,Mx,My,DELTA){
   
   Spatial_Locations_Data$y <- Spatial_Locations_Data$y + DELTA
   Spatial_Locations_Data$y_parent <- Spatial_Locations_Data$y_parent + DELTA
@@ -148,7 +148,7 @@ Animate_All <- function(Spatial_Locations_Data,TimeSteps,Frames_Seeds,Tree_Image
     }
     
     # implement birth animations 
-    Births_anim <- create_animation(X_Y_Living, animation_data_list, Tree_Images,Tree_WD,Mx,My)
+    Births_anim <- create_animation(X_Y_Living, animation_data_list, Tree_Images,Tree_Images_list,Mx,My)
     
     # Name births animation 
     Name_animation_Births <- paste0("TimeStep_",alphabetical_vector[tt],"_Births",".gif")
@@ -184,7 +184,7 @@ Animate_All <- function(Spatial_Locations_Data,TimeSteps,Frames_Seeds,Tree_Image
 }
 
 # Function to create the animation
-create_animation <- function(Adult_Positions, animation_data, Tree_Images,Tree_WD,Mx,My) {
+create_animation <- function(Adult_Positions, animation_data, Tree_Images,Tree_Images_list,Mx,My) {
   # Create a data frame for the grid
   grid_data <- expand.grid(x = 0:Mx, y = 0:My)
   
@@ -200,9 +200,9 @@ create_animation <- function(Adult_Positions, animation_data, Tree_Images,Tree_W
     geom_tile(fill = "#034700", color = NA, alpha = .9, height = 1.0065, width = 1.0065, linetype = 1) +
     theme_void() +
     theme(
-    panel.background = element_rect(fill = "grey20", color = "grey20"),
-    plot.margin = unit(c(-.5/3, -1/3, -.5/3, -1/3), "cm"),
-    panel.spacing = unit(c(0, 0, 0, 0), "cm"))
+      panel.background = element_rect(fill = "grey20", color = "grey20"),
+      plot.margin = unit(c(-.5/3, -1/3, -.5/3, -1/3), "cm"),
+      panel.spacing = unit(c(0, 0, 0, 0), "cm"))
   
   # Loop through each dataframe in the list and add layers to the plot
   for (jj in seq_along(animation_data)) {
@@ -222,7 +222,7 @@ create_animation <- function(Adult_Positions, animation_data, Tree_Images,Tree_W
     
     Species <- Adult_Positions$species[pp]
     
-    IMAGE <-  paste0(Tree_WD,"/",Tree_Images[Species])
+    IMAGE <- Tree_Images_list[[Species]]
     
     anim_plot <- add_image(anim_plot,IMAGE, x1, y1, 6, 6)
   }  
@@ -288,10 +288,15 @@ Spatial_Locations_05 <- subset(Spatial_Locations_05,timestep>1)
 # set WD for tree images 
 Tree_WD <- "C:/Users/smith/OneDrive/Desktop/Videos and More/Paper_Highlights/Paper_Highlights/Wiegand_et_al_2025/Images"
 Tree_WD <- "C:/Users/smith/OneDrive/Desktop/Videos and More/Paper_Highlights/Paper_Highlights/Wiegand_et_al_2025/Tree_Images_3"
-
 setwd(Tree_WD)
 # Get a list of all files in the working directory
 Tree_Images <- list.files()
+
+Tree_image_files <- list.files(Tree_WD, pattern = "\\.png$", full.names = TRUE)
+#Tree_Images_list <- lapply(Tree_image_files, image_read)
+Tree_Images_list      <- lapply(Tree_image_files, png::readPNG)
+
+
 
 # number of timesteps considered
 TimeSteps <- 2
@@ -324,7 +329,7 @@ X_Image <- image_read(X_Image_Path)
 # where to save? 
 WD_Save <- "C:/Users/smith/OneDrive/Desktop/Teaching_Related_Doucments/Course Doucments/Mathematical Biology Course/General_Animation_Code/Animation_Testing_2"
 
-Animate_All(Spatial_Locations_05,TimeSteps,Frames_Seeds,Tree_Images,Tree_WD,Seed_Image,X_Image_Path,alphabetical_vector,WD_Save,Scale_Factor,Mx,My,DELTA)
+Animate_All(Spatial_Locations_05,TimeSteps,Frames_Seeds,Tree_Images,Tree_Images_list,Seed_Image,X_Image_Path,alphabetical_vector,WD_Save,Scale_Factor,Mx,My,DELTA)
 
 
 combine_gifs(WD_Save,"Combinedt10.gif",5)
