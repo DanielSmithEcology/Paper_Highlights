@@ -177,7 +177,7 @@ Animate_All <- function(Spatial_Locations_Data,TimeSteps,Frames_Seeds,Tree_Image
     Name_animation_Deaths <- paste0("TimeStep_",alphabetical_vector[tt],"_Deaths",".gif")
     
     # make deaths animation 
-    create_gif_from_plots(List_Plots,Name_animation_Deaths,2,800,900)
+    create_gif_from_plots(List_Plots,Name_animation_Deaths,4,800,900)
     
   }
   
@@ -229,7 +229,7 @@ create_animation <- function(Adult_Positions, animation_data, Tree_Images,Tree_I
   
   # Make Animation 
   #Animation <- animate(anim_plot, nframes = n_frames + pause_frames+15, fps = 10,height = 900, width =1600,end_pause = 15,renderer = gifski_renderer())
-  anim_plot_New <- animate(anim_plot, nframes = Frames_Seeds + 15, res = 75,fps = 7, height = 900, width = 800, end_pause = 15, renderer = gifski_renderer())
+  anim_plot_New <- animate(anim_plot, nframes = Frames_Seeds + 15, res = 75,fps = 10, height = 900, width = 800, end_pause = 15, renderer = gifski_renderer())
   return(anim_plot_New)
 }
 
@@ -289,6 +289,7 @@ Spatial_Locations_05 <- subset(Spatial_Locations_05,timestep>1)
 Tree_WD <- "C:/Users/smith/OneDrive/Desktop/Videos and More/Paper_Highlights/Paper_Highlights/Wiegand_et_al_2025/Images"
 Tree_WD <- "C:/Users/smith/OneDrive/Desktop/Videos and More/Paper_Highlights/Paper_Highlights/Wiegand_et_al_2025/Tree_Images_3"
 setwd(Tree_WD)
+
 # Get a list of all files in the working directory
 Tree_Images <- list.files()
 
@@ -296,10 +297,8 @@ Tree_image_files <- list.files(Tree_WD, pattern = "\\.png$", full.names = TRUE)
 #Tree_Images_list <- lapply(Tree_image_files, image_read)
 Tree_Images_list      <- lapply(Tree_image_files, png::readPNG)
 
-
-
 # number of timesteps considered
-TimeSteps <- 2
+TimeSteps <- 10
 
 # Generate all combinations of three letters
 combinations <- expand.grid(letters, letters, letters)
@@ -311,7 +310,7 @@ alphabetical_vector <- apply(combinations, 1, paste0, collapse = "")
 alphabetical_vector <- sort(alphabetical_vector[1:TimeSteps])
 
 # Scale factor sects the number of frames
-Scale_Factor <- 10#5
+Scale_Factor <- 12#5
 
 # Dimensions 
 Mx <- 80
@@ -329,8 +328,9 @@ X_Image <- image_read(X_Image_Path)
 # where to save? 
 WD_Save <- "C:/Users/smith/OneDrive/Desktop/Teaching_Related_Doucments/Course Doucments/Mathematical Biology Course/General_Animation_Code/Animation_Testing_2"
 
+system.time(
 Animate_All(Spatial_Locations_05,TimeSteps,Frames_Seeds,Tree_Images,Tree_Images_list,Seed_Image,X_Image_Path,alphabetical_vector,WD_Save,Scale_Factor,Mx,My,DELTA)
-
+)
 
 combine_gifs(WD_Save,"Combinedt10.gif",5)
 

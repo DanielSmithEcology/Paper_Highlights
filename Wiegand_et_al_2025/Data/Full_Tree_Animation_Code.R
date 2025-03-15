@@ -324,8 +324,8 @@ X_Image <- image_read(X_Image_Path)
 # where to save? 
 WD_Save <- "C:/Users/smith/OneDrive/Desktop/Teaching_Related_Doucments/Course Doucments/Mathematical Biology Course/General_Animation_Code/Animation_Testing_2"
 
-Animate_All(Spatial_Locations_05,TimeSteps,Frames_Seeds,Tree_Images,Tree_WD,Seed_Image,X_Image_Path,alphabetical_vector,WD_Save,Scale_Factor,Mx,My,DELTA)
-
+system.time(Animate_All(Spatial_Locations_05,TimeSteps,Frames_Seeds,Tree_Images,Tree_WD,Seed_Image,X_Image_Path,alphabetical_vector,WD_Save,Scale_Factor,Mx,My,DELTA)
+)
 
 combine_gifs(WD_Save,"Combinedt10.gif",5)
 
